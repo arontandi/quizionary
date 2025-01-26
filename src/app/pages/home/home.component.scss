@@ -1,24 +1,44 @@
 .home-container {
-    text-align: center;
-    margin: 50px auto;
-  
-    .btn {
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-  
-      &.logout-btn {
-        margin-top: 20px;
-        background-color: #dc3545;
-  
-        &:hover {
-          background-color: #c82333;
-        }
+  text-align: center;
+  margin: 50px auto;
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &.logout-btn {
+      margin-top: 20px;
+      background-color: #dc3545;
+
+      &:hover {
+        background-color: #c82333;
       }
     }
   }
-  
+
+  .openai-section {
+    margin-top: 30px;
+
+    .input {
+      width: 80%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .response {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: left;
+    }
+  }
+}

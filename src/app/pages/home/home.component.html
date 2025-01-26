@@ -1,8 +1,28 @@
 <div class="home-container">
-    <h1>Welcome to the Home Page</h1>
-    <p>This is your main page after logging in.</p>
-  
-    <!-- Logout Button -->
-    <button (click)="onLogout()" class="btn logout-btn">Logout</button>
+  <h1>Welcome to the Home Page</h1>
+  <p>This is your main page after logging in.</p>
+
+  <button (click)="onLogout()" class="btn logout-btn">Logout</button>
+
+  <hr />
+
+  <div class="openai-section">
+    <h2>OpenAI Interaction</h2>
+
+    <textarea
+      [(ngModel)]="prompt"
+      rows="5"
+      placeholder="Enter your prompt here..."
+      class="input"
+    ></textarea>
+
+    <button (click)="generateResponse()" [disabled]="loading" class="btn">
+      {{ loading ? 'Generating...' : 'Generate Response' }}
+    </button>
+
+    <div *ngIf="response" class="response">
+      <h3>Response:</h3>
+      <p>{{ response }}</p>
+    </div>
   </div>
-  
+</div>
