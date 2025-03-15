@@ -5,13 +5,50 @@
 /tmp
 /out-tsc
 /bazel-out
+/build
 
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
+# Node dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# IDEs and editors
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Tests & Coverage
+/coverage
+/.nyc_output
+/libpeerconnection.log
+testem.log
+
+# Firebase
+.firebase
+*-debug.log
+.runtimeconfig.json
+
+# Ignore environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+src/environments/environment*.ts
+
+# IDEs and Editors
 .idea/
 .project
 .classpath
@@ -19,6 +56,7 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+.history/*
 
 # Visual Studio Code
 .vscode/*
@@ -28,9 +66,9 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
+# Temporary directories
+.temp
+.tmp
 /connect.lock
 /coverage
 /libpeerconnection.log
@@ -41,10 +79,11 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Firebase
-.firebase
-*-debug.log
-.runtimeconfig.json
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# Ignore environment files
-src/environments/environment*.ts
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
