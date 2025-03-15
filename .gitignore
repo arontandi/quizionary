@@ -16,6 +16,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+#Angular
+.angular/cache
+frontend/.angular/cache
+
 # Logs
 logs
 *.log
@@ -46,7 +50,7 @@ testem.log
 .env.development.local
 .env.test.local
 .env.production.local
-src/environments/environment*.ts
+frontend/environments/environment*.ts
 
 # IDEs and Editors
 .idea/

@@ -3,13 +3,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./out-tsc/spec",
+    "outDir": "./out-tsc/frontend",
     "types": [
-      "jasmine"
+      "node"
     ]
   },
+  "files": [
+    "main.ts",
+    "main.server.ts",
+    "server.ts"
+  ],
   "include": [
-    "src/**/*.spec.ts",
     "src/**/*.d.ts"
   ]
 }
