@@ -50,7 +50,8 @@ testem.log
 .env.development.local
 .env.test.local
 .env.production.local
-frontend/environments/environment*.ts
+frontend/src/environments/environment*.ts
+backend/config/firebaseAdminConfig.json
 
 # IDEs and Editors
 .idea/
@@ -91,3 +92,10 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Ignore Firebase Admin credentials
+config/firebaseAdminConfig.json
+
+# Ignore dist folder
+backend/dist
+frontend/dist
