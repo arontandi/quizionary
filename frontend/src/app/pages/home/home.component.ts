@@ -1,57 +1,48 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { OpenAIService } from '../../core/services/openai.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RecentQuizActivity } from 'src/app/core/models/quiz.models';
+import { ApiService } from 'src/app/core/services/api.service';
+
+type QuizStub = {
+  id: string;
+  title: string;
+  tag?: string;
+  updatedAt: string;
+  progress?: number;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-    imports: [FormsModule, CommonModule]
+  imports: [FormsModule, CommonModule, RouterLink]
 })
-export class HomeComponent {
-  prompt: string = '';
-  response: string = '';
-  loading: boolean = false;
+export class HomeComponent implements OnInit {
+  recent: RecentQuizActivity[] = [];
+  loading = false;
+  error = '';
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private openAIService: OpenAIService
-  ) {}
+  constructor(private api: ApiService) { }
 
-  onLogout() {
-    this.authService
-      .logout()
-      .then(() => {
-        this.router.navigate(['/login']);
-      })
-      .catch((err) => {
-        console.error('Logout failed:', err);
-      });
-  }
-
-  async generateResponse() {
-    if (!this.prompt.trim()) {
-      alert('Please enter a prompt');
-      return;
-    }
-
+  ngOnInit(): void {
     this.loading = true;
-    try {
-      const messages = [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: this.prompt },
-      ];
-      this.response = await this.openAIService.generateResponse(messages);
-    } catch (error) {
-      console.error('Error generating response:', error);
-      this.response = 'An error occurred. Please try again.';
-    } finally {
-      this.loading = false;
-    }
+    this.api.getMyRecentQuizzes().subscribe({
+      next: (items) => {
+        this.recent = items ?? [];
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load recent quizzes', err);
+        this.error = 'Could not load recent activity.';
+        this.loading = false;
+      },
+    });
   }
+
+  trackRecent(_: number, x: RecentQuizActivity) { return x.quizId; }
 }

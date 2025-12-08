@@ -1,0 +1,113 @@
+<div class="page">
+    <!-- Title only -->
+    <div class="titlebar">
+        <h1 class="title">{{ quiz?.title }}</h1>
+        <div class="actions">
+            <button type="button" class="btn ghost back" (click)="goBack()">← Back</button>
+            <button class="btn danger" type="button" (click)="onDelete()" [disabled]="deleting"
+                aria-label="Delete quiz with all attempts and questions">
+                {{ deleting ? 'Deleting…' : 'Delete' }}
+            </button>
+            <button class="btn" (click)="startQuiz()">Start quiz</button>
+        </div>
+    </div>
+
+    <p class="subtitle">
+        {{ quiz?.questions?.length ?? 0 }} questions • Created: {{ quiz?.createdAt | date:'yyyy.MM.dd' }}
+    </p>
+
+    <!-- 1) Basic info -->
+    <div class="card">
+        <div class="qhead">
+            <div class="num">i</div>
+            <div class="qtext">Basic info</div>
+            <div class="right"></div>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-item">
+                <div class="label">Title</div>
+                <div class="value">{{ quiz?.title }}</div>
+            </div>
+
+            <div class="meta-item">
+                <div class="label">Description</div>
+                <div class="value">{{ quiz?.description || '—' }}</div>
+            </div>
+
+            <div class="meta-row">
+                <div class="pill">{{ quiz?.questions?.length ?? 0 }} questions</div>
+                <div class="pill" *ngIf="createdByLabel">by {{ createdByLabel }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2) Progress -->
+    <div class="card">
+        <div class="qhead">
+            <div class="num">ii</div>
+            <div class="qtext">Progress</div>
+            <div class="right"></div>
+        </div>
+
+        <div *ngIf="attempts.length === 0" class="empty">
+            No attempts yet. Click <b>Start quiz</b> to take your first run.
+        </div>
+
+        <!-- KPI tiles -->
+        <div class="kpis" *ngIf="attempts.length > 0">
+            <div class="kpi">
+                <div class="label">Best score</div>
+                <div class="value">{{ bestScorePct | number:'1.0-0' }}%</div>
+            </div>
+            <div class="kpi">
+                <div class="label">Average score</div>
+                <div class="value">{{ avgScorePct | number:'1.0-0' }}%</div>
+            </div>
+            <div class="kpi">
+                <div class="label">Avg. time</div>
+                <div class="value">
+                    <ng-container *ngIf="avgTimeMin !== null; else noTime">
+                        {{ avgTimeMin | number:'1.0-0' }} min
+                    </ng-container>
+                    <ng-template #noTime>—</ng-template>
+                </div>
+            </div>
+        </div>
+
+        <div class="chartbox" [style.display]="attempts.length > 0 ? 'block' : 'none'">
+            <canvas #scoreCanvas></canvas>
+        </div>
+    </div>
+
+    <!-- 3) Attempts -->
+    <div class="card">
+        <div class="qhead">
+            <div class="num">iii</div>
+            <div class="qtext">Previous attempts</div>
+            <div class="right">
+                <span class="pill tiny">{{ attempts.length }} attempt{{ attempts.length === 1 ? '' : 's' }}</span>
+            </div>
+        </div>
+
+        <div *ngIf="attempts.length === 0" class="empty">
+            No attempts yet. Click <b>Start quiz</b> to take your first run.
+        </div>
+
+        <div class="list" *ngIf="attempts.length > 0">
+            <div class="attempt-row" *ngFor="let a of attempts; trackBy: trackAttempt">
+                <div class="left">
+                    <div class="top">
+                        <span class="date">{{ a.completedAt | date:'yyyy.MM.dd HH:mm' }}</span>
+                    </div>
+                    <div class="meta">
+                        <span class="score">{{ a.scorePct | number:'1.0-0' }}%</span>
+                        <span class="ct">{{ a.correct }} / {{ a.total }}</span>
+                        <span *ngIf="a.durationSec" class="dur">{{ a.durationSec/60 | number:'1.0-0' }} min</span>
+                    </div>
+                </div>
+                <a class="btn ghost tiny" [routerLink]="'/quiz/' + quiz?.id + '/attempts/' + a.id">View</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+# Ignore everything by default
+**
+
+# But include the files needed to build the NestJS app
+!Dockerfile
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.build.json
+!nest-cli.json
+!src/**
+!prisma/**
+!ormconfig.js
+!ormconfig.json
+!config/**

@@ -15,16 +15,24 @@ export class LoginComponent {
   email = '';
   password = '';
   errorMessage = '';
+  loading = false;
+  showPassword = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
-  onLogin() {
-    this.authService
-      .login(this.email, this.password)
-      .then(() => this.router.navigate(['/home']))
-      .catch((err: any) => {
-        this.errorMessage = 'Invalid email or password.';
-        console.error(err);
-      });
+  async onLogin(ev?: Event) {
+    ev?.preventDefault();
+    if (this.loading) return;
+    this.errorMessage = '';
+    this.loading = true;
+    try {
+      await this.authService.login(this.email.trim(), this.password);
+      this.router.navigate(['/home']);
+    } catch (err) {
+      console.error('Login failed:', err);
+      this.errorMessage = 'Invalid email or password.';
+    } finally {
+      this.loading = false;
+    }
   }
 }

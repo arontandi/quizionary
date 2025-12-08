@@ -1,28 +1,67 @@
-<div class="home-container">
-  <h1>Welcome to the Home Page</h1>
-  <p>This is your main page after logging in.</p>
+<div class="home wrap">
+  <div class="grid-2">
+    <!-- Quick actions -->
+    <section class="card actions">
+      <div class="qhead">Quick actions</div>
+      <div class="row buttons">
+        <a routerLink="/dashboard" class="btn primary">Dashboard</a>
+        <a routerLink="/quiz/new" class="btn">Create new quiz</a>
+        <a routerLink="/quiz/generate" class="btn">Generate from PDF/Text</a>
+        <a routerLink="/settings" class="btn">Settings</a>
+      </div>
+    </section>
 
-  <button (click)="onLogout()" class="btn logout-btn">Logout</button>
+    <!-- Recent attempts on your own quizzes -->
+    <section class="card">
+      <div class="qhead">Your latest quiz runs</div>
 
-  <hr />
+      <div *ngIf="loading" class="empty">
+        Loading your recent activity…
+      </div>
 
-  <div class="openai-section">
-    <h2>OpenAI Interaction</h2>
+      <div *ngIf="!loading && error" class="empty">
+        {{ error }}
+      </div>
 
-    <textarea
-      [(ngModel)]="prompt"
-      rows="5"
-      placeholder="Enter your prompt here..."
-      class="input"
-    ></textarea>
+      <ng-container *ngIf="!loading && !error">
+        <ng-container *ngIf="recent?.length; else emptyRecent">
+          <ul class="list">
+            <li *ngFor="let item of recent; trackBy: trackRecent" class="list-item">
+              <div class="item-main">
+                <div class="item-title">
+                  {{ item.title }}
+                </div>
+                <div class="meta">
+                  Last attempt:
+                  {{ item.lastAttemptCompletedAt | date: 'yyyy.MM.dd HH:mm' }}
+                  •
+                  <span *ngIf="item.scorePct !== null">
+                    {{ item.scorePct | number: '1.0-0' }}%
+                    ({{ item.correct }}/{{ item.total }})
+                  </span>
+                  <span *ngIf="item.scorePct === null"> no score </span>
+                </div>
+              </div>
 
-    <button (click)="generateResponse()" [disabled]="loading" class="btn">
-      {{ loading ? 'Generating...' : 'Generate Response' }}
-    </button>
+              <div class="row item-actions">
+                <a class="btn sm" [routerLink]="['/quiz', item.quizId]">
+                  Details
+                </a>
+                <a class="btn sm" [routerLink]="['/quiz', item.quizId, 'take']">
+                  Start again
+                </a>
+              </div>
+            </li>
+          </ul>
+        </ng-container>
 
-    <div *ngIf="response" class="response">
-      <h3>Response:</h3>
-      <p>{{ response }}</p>
-    </div>
+        <ng-template #emptyRecent>
+          <div class="empty">
+            You don't have any attempts yet. Create a quiz and take it to see
+            your progress here.
+          </div>
+        </ng-template>
+      </ng-container>
+    </section>
   </div>
 </div>

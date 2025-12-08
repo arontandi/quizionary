@@ -1,30 +1,80 @@
-<div class="auth-container">
-    <h1>Register</h1>
-    <form (submit)="onRegister()">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="Enter your email" required />
+<div class="auth wrap">
+    <section class="card auth-card">
+        <h1 class="title">Create your account</h1>
+
+        <form #regForm="ngForm" (ngSubmit)="onRegister(regForm)" class="form">
+            <!-- Username -->
+            <div class="form-group">
+                <label for="displayName" class="qhead">Username</label>
+                <input id="displayName" name="displayName" type="text" [(ngModel)]="displayName" required minlength="3"
+                    maxlength="30" autocomplete="nickname" placeholder="Pick a username" />
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="qhead">Email</label>
+                <input id="email" name="email" type="email" [(ngModel)]="email" required autocomplete="email"
+                    placeholder="you@example.com" />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password" class="qhead">Password</label>
+                <div class="input-wrap">
+                    <input id="password" name="password" [type]="showPassword ? 'text' : 'password'"
+                        [(ngModel)]="password" required minlength="6" autocomplete="new-password" placeholder="••••••••"
+                        class="has-action" />
+                    <button type="button" class="input-action" (click)="showPassword = !showPassword"
+                        [attr.aria-pressed]="showPassword"
+                        [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                        {{ showPassword ? 'Hide' : 'Show' }}
+                    </button>
+                </div>
+                <ul id="pwErrors" class="hint list">
+                    <li [class.ok]="hasMinLength">8+ characters</li>
+                    <li [class.ok]="hasLowercase">lowercase letter</li>
+                    <li [class.ok]="hasUppercase">uppercase letter</li>
+                    <li [class.ok]="hasDigit">number</li>
+                    <li [class.ok]="hasSymbol">symbol</li>
+                </ul>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label for="confirmPassword" class="qhead">Confirm password</label>
+                <div class="input-wrap">
+                    <input id="confirmPassword" name="confirmPassword" [type]="showConfirm ? 'text' : 'password'"
+                        [(ngModel)]="confirmPassword" required minlength="6" autocomplete="new-password"
+                        placeholder="••••••••" class="has-action" />
+                    <button type="button" class="input-action" (click)="showConfirm = !showConfirm"
+                        [attr.aria-pressed]="showConfirm"
+                        [attr.aria-label]="showConfirm ? 'Hide password' : 'Show password'">
+                        {{ showConfirm ? 'Hide' : 'Show' }}
+                    </button>
+                </div>
+                <p class="error" *ngIf="passwordsMismatch">Passwords do not match.</p>
+            </div>
+
+            <!-- Action -->
+            <div class="actions">
+                <button type="submit" class="btn primary lg block"
+                    [disabled]="loading || !regForm.valid || passwordsMismatch || !passwordStrong">
+                    <span class="spinner" *ngIf="loading" aria-hidden="true"></span>
+                    {{ loading ? 'Creating…' : 'Register' }}
+                </button>
+            </div>
+
+            <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+        </form>
+    </section>
+
+    <section class="card next-steps">
+        <div class="row space-between">
+            <div>
+                <div class="qhead">Already have an account?</div>
+                <p class="muted">Log in to continue where you left off.</p>
+            </div>
+            <a routerLink="/login" class="btn">Login</a>
         </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" [(ngModel)]="password"
-                placeholder="Enter your password" required />
-        </div>
-
-        <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" [(ngModel)]="confirmPassword"
-                placeholder="Confirm your password" required />
-        </div>
-
-        <button type="submit" class="btn">Register</button>
-    </form>
-
-    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-
-    <p>
-        Already have an account?
-        <a routerLink="/login" class="login-link">Login</a>
-    </p>
+    </section>
 </div>

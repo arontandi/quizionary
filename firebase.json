@@ -1,0 +1,23 @@
+{
+  "hosting": {
+    "public": "frontend/dist/quizionary/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "quizionary-api",
+          "region": "europe-central2"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

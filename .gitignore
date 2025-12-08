@@ -99,3 +99,6 @@ config/firebaseAdminConfig.json
 # Ignore dist folder
 backend/dist
 frontend/dist
+
+backend/.env
+Dockerfile

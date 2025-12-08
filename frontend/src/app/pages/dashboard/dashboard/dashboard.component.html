@@ -1,0 +1,79 @@
+<div class="wrap">
+  <header class="header">
+    <div>
+      <h1 class="title">Your quizzes</h1>
+      <p class="subtitle">Manage, search and open your quiz details</p>
+    </div>
+
+    <nav class="tools">
+      <a routerLink="/home" class="btn ghost" aria-label="Go to settings">← Back</a>
+      <a routerLink="/settings" class="btn ghost" aria-label="Go to settings">User page</a>
+      <a routerLink="/quiz/new" class="btn primary">Create quiz</a>
+    </nav>
+  </header>
+
+  <section class="toolbar card">
+    <div class="row">
+      <div class="select-wrap">
+        <select [value]="sort()" (change)="onSort($any($event.target).value)" aria-label="Sort quizzes">
+          <option value="createdAt_desc">Newest first</option>
+          <option value="createdAt_asc">Oldest first</option>
+          <option value="title_asc">Title A→Z</option>
+          <option value="title_desc">Title Z→A</option>
+        </select>
+      </div>
+
+      <div class="search-wrap">
+        <input
+          #search
+          type="search"
+          placeholder="Search by title or description…"
+          aria-label="Search quizzes"
+          (input)="onSearch(search.value)"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="loading()" class="card">
+    <div class="loading">Loading your quizzes…</div>
+  </section>
+
+  <section *ngIf="!loading() && error()" class="card error">{{ error() }}</section>
+
+  <section *ngIf="!loading() && !error() && visibleQuizzes().length === 0" class="card empty">
+    <div class="qhead">
+      <div class="num">!</div>
+      <div class="qtext">No quizzes found</div>
+    </div>
+
+    <div class="inline" *ngIf="allQuizzes().length === 0">
+      <p>Create your first quiz to see it here.</p>
+      <a routerLink="/quiz/new" class="btn primary">Create quiz</a>
+    </div>
+
+    <div class="inline" *ngIf="allQuizzes().length > 0">
+      <p>No quiz found, try changing the filters.</p>
+      <a routerLink="/quiz/new" class="btn">Create quiz</a>
+    </div>
+  </section>
+
+  <section *ngIf="!loading() && !error() && visibleQuizzes().length > 0" class="grid">
+    <article class="card quiz" *ngFor="let qz of visibleQuizzes(); trackBy: trackById">
+      <div class="qhead">
+        <div class="num">Q</div>
+        <div class="qtext">{{ qz.title }}</div>
+      </div>
+
+      <p class="desc">{{ qz.description || '—' }}</p>
+
+      <div class="meta">
+        <span>Created: {{ qz.createdAt | date:'yyyy.MM.dd. HH:mm' }}</span>
+      </div>
+
+      <div class="actions">
+        <a class="btn" [routerLink]="['/quiz', qz.id]">Open details</a>
+      </div>
+    </article>
+  </section>
+</div>

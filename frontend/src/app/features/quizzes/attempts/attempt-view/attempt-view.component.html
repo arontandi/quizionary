@@ -1,0 +1,193 @@
+<ng-container *ngIf="vm() as data; else loading">
+    <div class="page">
+        <!-- Top stats -->
+        <section class="stats card">
+            <div class="stats__left">
+                <h1 class="title">{{ data.quiz.title }}</h1>
+                <p class="subtitle">
+                    {{ data.quiz.questions?.length ?? 0 }} questions • Attempt on
+                    <span>{{ data.attempt.completedAt | date:'medium' }}</span>
+                </p>
+                <div class="badges">
+                    <span class="badge">Score: <b>{{ data.attempt.scorePct | number:'1.0-0' }}%</b></span>
+                    <span class="badge">Correct: <b>{{ data.attempt.correct }}/{{ data.attempt.total }}</b></span>
+                    <span class="badge" *ngIf="data.attempt.durationSec as d">Time: <b>{{ fmtDuration(d) }}</b></span>
+                </div>
+            </div>
+            <div class="stats__right">
+                <div class="meter">
+                    <div class="meter__fill" [style.width.%]="data.attempt.scorePct"></div>
+                </div>
+                <div class="meter__label">{{ data.attempt.scorePct | number:'1.0-0' }}%</div>
+            </div>
+        </section>
+
+        <!-- Questions -->
+        <div *ngFor="let q of (data.quiz.questions ?? []); let i = index; trackBy: trackById" class="card">
+            <div class="qhead">
+                <div class="num">{{ i + 1 }}</div>
+                <div class="qtext">{{ q.questionText }}</div>
+            </div>
+            <ng-container [ngSwitch]="q.type">
+                <!-- MCQ -->
+                <ng-container *ngSwitchCase="'multipleChoice'">
+                    <ng-container *ngIf="isMCQ(q) as mc">
+                        <!-- status under the question title -->
+                        <div class="statusline">
+                            <span class="badge" [class.good]="isCorrect(q)" [class.bad]="!isCorrect(q)">
+                                {{ isCorrect(q) ? 'Correct' : 'Wrong' }}
+                            </span>
+                        </div>
+
+                        <div class="options">
+                            <label class="option" *ngFor="let opt of q.options; let oi = index; trackBy: trackByIndex"
+                                [class.is-selected]="isSelected(q, oi)" [class.is-correct]="isCorrectOption(q, oi)"
+                                [class.is-wrong]="isSelected(q, oi) && !isCorrectOption(q, oi)">
+                                <input type="radio" [name]="'q' + q.id" [checked]="isSelected(q, oi)" disabled />
+                                <span class="labeltext">{{ opt }}</span>
+                                <span class="control"><span class="dot"></span></span>
+                            </label>
+                        </div>
+
+                        <div class="explain" *ngIf="q.explanation as exp">
+                            <div class="explain__title">Explanation</div>
+                            <p>{{ exp }}</p>
+                        </div>
+                    </ng-container>
+                </ng-container>
+
+                <!-- True / False -->
+                <ng-container *ngSwitchCase="'trueFalse'">
+                    <div class="options compact" *ngIf="isTF(q)">
+                        <div class="statusline">
+                            <span class="badge" [class.good]="isCorrect(q)" [class.bad]="!isCorrect(q)">
+                                {{ isCorrect(q) ? 'Correct' : 'Wrong' }}
+                            </span>
+                        </div>
+                        <label class="option tf" [class.is-selected]="isTFSelected(q, true)"
+                            [class.is-correct]="isTFCorrectValue(q, true)"
+                            [class.is-wrong]="isTFSelected(q, true) && !isTFCorrectValue(q, true)">
+                            <input class="radio" type="radio" [name]="'q' + q.id" [checked]="isTFSelected(q, true)"
+                                disabled />
+                            <span class="control"><span class="dot"></span></span>
+                            <span class="labeltext">True</span>
+                        </label>
+
+                        <label class="option tf" [class.is-selected]="isTFSelected(q, false)"
+                            [class.is-correct]="isTFCorrectValue(q, false)"
+                            [class.is-wrong]="isTFSelected(q, false) && !isTFCorrectValue(q, false)">
+                            <input class="radio" type="radio" [name]="'q' + q.id" [checked]="isTFSelected(q, false)"
+                                disabled />
+                            <span class="control"><span class="dot"></span></span>
+                            <span class="labeltext">False</span>
+                        </label>
+                        <div class="explain" *ngIf="q.explanation as exp">
+                            <div class="explain__title">Explanation</div>
+                            <p>{{ exp }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Fill blank -->
+                <ng-container *ngSwitchCase="'fillBlank'">
+                    <div class="fill" *ngIf="isFill(q)">
+                        <div class="statusline">
+                            <span class="badge" [class.good]="isCorrect(q)" [class.bad]="!isCorrect(q)">
+                                {{ isCorrect(q) ? 'Correct' : 'Wrong' }}
+                            </span>
+                        </div>
+                        <div class="answerline">
+                            <span class="label">Your answer:</span>
+                            <span class="value">{{ fillUser(q) || '—' }}</span>
+                        </div>
+                        <div class="answerline">
+                            <span class="label">Accepted answer:</span>
+                            <span class="value">{{ q.acceptableAnswer }}</span>
+                        </div>
+                        <div class="explain" *ngIf="q.explanation as exp">
+                            <div class="explain__title">Explanation</div>
+                            <p>{{ exp }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Matching -->
+                <ng-container *ngSwitchCase="'matching'">
+                    <div class="matchdd clean" *ngIf="isMatch(q)">
+                        <div class="statusline">
+                            <span class="badge" [class.good]="matchIsFullyCorrect(q)"
+                                [class.bad]="!matchIsFullyCorrect(q)">
+                                {{ matchIsFullyCorrect(q) ? 'All correct' : 'Has mistakes' }}
+                            </span>
+                        </div>
+                        <!-- Left -->
+                        <div class="col left">
+                            <div class="row" *ngFor="let pair of q.pairs; let i = index">
+                                <span class="text">{{ pair.left }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Right -->
+                        <div class="col right">
+                            <div class="row" *ngFor="let _ of q.pairs; let i = index" [class.ok]="matchRowCorrect(q, i)"
+                                [class.bad]="!matchRowCorrect(q, i)">
+                                <div class="text">{{ q.pairs[(matchUserPermutation(q)[i] ?? -1)]?.right ?? '—' }}</div>
+
+                                <div class="hint" *ngIf="!matchRowCorrect(q, i)">
+                                    <span class="hint-label">EXPECTED:</span>
+                                    <span class="hint-value">{{ q.pairs[i].right }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="explain" *ngIf="q.explanation as exp">
+                        <div class="explain__title">Explanation</div>
+                        <p>{{ exp }}</p>
+                    </div>
+                </ng-container>
+
+                <!-- Open-ended -->
+                <ng-container *ngSwitchCase="'openEnded'">
+                    <div class="open" *ngIf="isOpen(q)">
+                        <div class="statusline">
+                            <span class="badge" [class.good]="isCorrect(q)" [class.bad]="!isCorrect(q)">
+                                {{ isCorrect(q) ? 'Meets criteria' : 'Missing keywords' }}
+                            </span>
+                        </div>
+
+                        <div class="answerline">
+                            <span class="label">Your answer:</span>
+                            <span class="value block">{{ openUserText(q) || '—' }}</span>
+                        </div>
+
+                        <div class="keywords" *ngIf="q.expectedKeywords?.length">
+                            <div class="khead">Expected keywords:</div>
+                            <div class="ktags">
+                                <span class="tag" *ngFor="let kw of q.expectedKeywords; trackBy: trackByIndex"
+                                    [class.hit]="openKeywordHit(q, kw)" [class.miss]="!openKeywordHit(q, kw)">
+                                    {{ kw }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="explain" *ngIf="q.explanation as exp">
+                            <div class="explain__title">Notes</div>
+                            <p>{{ exp }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+
+
+        </div>
+        <div class="actionbar">
+            <div class="actionbar__inner">
+                <div class="actions">
+                    <button type="button" class="btn ghost back" (click)="goBack(data.quiz.id)">← Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>
+<ng-template #loading>Loading…</ng-template>

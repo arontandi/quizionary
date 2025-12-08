@@ -1,0 +1,93 @@
+<ng-container *ngIf="quiz() as qu; else loading">
+  <div class="page">
+    <h1 class="title">{{ qu.title }}</h1>
+    <p class="subtitle">{{ qu.questions?.length ?? 0 }} questions • Answer everything, then submit it below.</p>
+
+    <div *ngFor="let q of (qu.questions ?? []); let i = index; trackBy: trackById" class="card">
+      <div class="qhead">
+        <div class="num">{{ i + 1 }}</div>
+        <div class="qtext">{{ q.questionText }}</div>
+      </div>
+
+      <ng-container [ngSwitch]="q.type">
+        <!-- Multiple choice -->
+        <ng-container *ngSwitchCase="'multipleChoice'">
+          <div class="options">
+            <label class="option" *ngFor="let opt of mcqOptions(q); let oi = index; trackBy: trackByIndex">
+              <input type="radio" [name]="'q' + q.id" [(ngModel)]="answers[q.id]" [value]="oi" />
+              <span class="labeltext">{{ opt }}</span>
+              <span class="control"><span class="dot"></span></span>
+            </label>
+          </div>
+        </ng-container>
+
+        <!-- True / False -->
+        <ng-container *ngSwitchCase="'trueFalse'">
+          <div class="options compact">
+            <label class="option tf">
+              <input class="radio" type="radio" [name]="'q' + q.id" [(ngModel)]="answers[q.id]" [value]="true" />
+              <span class="control"><span class="dot"></span></span>
+              <span class="labeltext">True</span>
+            </label>
+            <label class="option tf">
+              <input class="radio" type="radio" [name]="'q' + q.id" [(ngModel)]="answers[q.id]" [value]="false" />
+              <span class="control"><span class="dot"></span></span>
+              <span class="labeltext">False</span>
+            </label>
+          </div>
+        </ng-container>
+
+        <!-- Fill in the blank -->
+        <ng-container *ngSwitchCase="'fillBlank'">
+          <input type="text" [(ngModel)]="answers[q.id]" placeholder="Answer..." />
+        </ng-container>
+
+        <!-- Matching -->
+        <ng-container *ngSwitchCase="'matching'">
+          <div class="matchdd clean">
+            <!-- Left -->
+            <div class="col left">
+              <div class="row" *ngFor="let pair of matchPairs(q); let i = index" [class.is-hover]="i === hoveredIndex">
+                <span class="text">{{ pair.left }}</span>
+              </div>
+            </div>
+
+            <!-- Right -->
+            <div class="col right" cdkDropList [cdkDropListData]="matchState(q).right"
+              (cdkDropListDropped)="onDropMatch($any(q), $event)">
+              <div class="row" *ngFor="let item of matchState(q).right; let ri = index" cdkDrag
+                (mouseenter)="setHover(ri)" (mouseleave)="setHover(null)" [class.is-hover]="ri === hoveredIndex">
+                <span class="text">{{ item.text }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Open-ended -->
+        <ng-container *ngSwitchCase="'openEnded'">
+          <textarea [(ngModel)]="answers[q.id]" rows="3" placeholder="Type your answer…"></textarea>
+        </ng-container>
+      </ng-container>
+
+    </div>
+
+    <div class="actionbar">
+      <div class="actionbar__inner">
+        <div class="progress">
+          <div class="progressbar"><span [style.width.%]="completionPct()"></span></div>
+          <span>{{ answeredCount() }}/{{ qu.questions?.length ?? 0 }} done</span>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost back" (click)="abortAttempt()">← Back</button>
+          <button class="btn" (click)="submit()" [disabled]="!allAnswered()">Submit</button>
+        </div>
+      </div>
+    </div>
+
+
+    <p class="ok" *ngIf="msg()">{{ msg() }}</p>
+  </div>
+</ng-container>
+
+<ng-template #loading>Loading…</ng-template>

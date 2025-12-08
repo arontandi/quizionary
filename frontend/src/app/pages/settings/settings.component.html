@@ -1,0 +1,65 @@
+<div class="wrap">
+    <header class="header">
+        <div>
+            <h1 class="title">Settings</h1>
+            <p class="subtitle">Manage your account and preferences</p>
+        </div>
+
+        <nav class="tools">
+            <a routerLink="/home" class="btn ghost" aria-label="Go back">← Back</a>
+
+            <button type="button" class="btn danger-outline" (click)="onLogout()" [disabled]="loading">
+                {{ loading ? 'Logging out…' : 'Log out' }}
+            </button>
+        </nav>
+    </header>
+
+    <section class="card">
+        <div class="qhead">
+            <div class="num">U</div>
+            <div class="qtext">Account</div>
+        </div>
+
+        <p class="desc">
+            Logged in as:
+            <span class="email">
+                {{ userLabel$ | async }}
+            </span>
+        </p>
+
+        <div class="username-block">
+            <label for="displayName" class="label">Username</label>
+
+            <div class="username-row">
+                <input id="displayName" name="displayName" type="text" [(ngModel)]="displayName"
+                    placeholder="Enter a new username" />
+
+                <button type="button" class="btn primary" (click)="onChangeDisplayName()" [disabled]="nameSaving">
+                    {{ nameSaving ? 'Saving…' : 'Save' }}
+                </button>
+            </div>
+
+            <p *ngIf="nameError" class="hint error-text">
+                {{ nameError }}
+            </p>
+
+            <p *ngIf="nameSuccess && !nameError" class="hint success-text">
+                {{ nameSuccess }}
+            </p>
+        </div>
+        <div class="danger-zone">
+            <h2 class="danger-title">Danger zone</h2>
+            <p class="hint">
+                Deleting your account will remove your profile and sign you out permanently.
+                This action cannot be undone.
+            </p>
+
+            <button type="button" class="btn danger-outline" (click)="onDeleteAccount()" [disabled]="loading">
+                Delete account
+            </button>
+        </div>
+        <p *ngIf="error" class="hint error-text">
+            {{ error }}
+        </p>
+    </section>
+</div>

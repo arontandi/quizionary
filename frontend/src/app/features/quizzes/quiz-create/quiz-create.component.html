@@ -1,0 +1,156 @@
+<form class="page" [formGroup]="form" (ngSubmit)="submit()">
+    <h1 class="title">Create quiz</h1>
+    <p class="subtitle">Add your quiz details and questions below.</p>
+
+    <!-- Meta -->
+    <div class="card">
+        <div class="qhead">
+            <div class="num">i</div>
+            <div class="qtext">Basic info</div>
+        </div>
+
+        <label class="label">Title</label>
+        <input type="text" formControlName="title" placeholder="Quiz title" />
+        <div class="err" *ngIf="form.controls.title.touched && form.controls.title.invalid">
+            Title is required (min. 3 characters).
+        </div>
+
+        <label class="label mt">Description</label>
+        <textarea formControlName="description" rows="3" placeholder="Short description"></textarea>
+        <div class="err" *ngIf="form.controls.description.touched && form.controls.description.invalid">
+            Description is required (min. 3 characters).
+        </div>
+    </div>
+
+    <!-- Add buttons -->
+    <div class="addbar">
+        <button type="button" class="btn ghost" (click)="addQuestion('multipleChoice')">+ Multiple choice</button>
+        <button type="button" class="btn ghost" (click)="addQuestion('trueFalse')">+ True / False</button>
+        <button type="button" class="btn ghost" (click)="addQuestion('fillBlank')">+ Fill in the blank</button>
+        <button type="button" class="btn ghost" (click)="addQuestion('matching')">+ Matching</button>
+        <button type="button" class="btn ghost" (click)="addQuestion('openEnded')">+ Open-ended</button>
+    </div>
+
+    <div class="title small">Questions</div>
+
+    <!-- Questions -->
+    <ng-container formArrayName="questions">
+        <div class="card" *ngFor="let q of questions.controls; let i = index" [formGroupName]="i">
+            <div class="qhead">
+                <div class="num">{{ i + 1 }}</div>
+                <div class="qtext">Configure the question</div>
+                <div class="headactions">
+                    <select class="type" [value]="q.controls.type.value"
+                        (change)="onTypeChange(i, $any($event.target).value)">
+                        <option value="multipleChoice">Multiple choice</option>
+                        <option value="trueFalse">True / False</option>
+                        <option value="fillBlank">Fill in the blank</option>
+                        <option value="matching">Matching</option>
+                        <option value="openEnded">Open-ended</option>
+                    </select>
+
+                    <button type="button" class="btn subtle danger-outline tiny" (click)="removeQuestion(i)">
+                        <span aria-hidden="true">Remove</span><span class="sr-only">Remove question</span>
+                    </button>
+                </div>
+            </div>
+
+            <label class="label">Question text</label>
+            <textarea formControlName="questionText" rows="2" placeholder="Write the question..."></textarea>
+
+            <label class="label mt">Explanation (optional)</label>
+            <textarea formControlName="answerExplanation" rows="2"
+                placeholder="Shown after answering (optional)"></textarea>
+
+            <!-- Type-specific -->
+            <div class="typesect" formGroupName="data">
+                <!-- Multiple choice -->
+                <ng-container *ngIf="q.controls.type.value === 'multipleChoice'">
+                    <div class="options" formArrayName="options">
+                        <label class="option grid" *ngFor="let _ctrl of optionsControls(i); let oi = index">
+                            <input type="radio" [name]="'mcq'+i" [checked]="isCorrect(i, oi)"
+                                (change)="setCorrect(i, oi)" />
+                            <span class="control"><span class="dot"></span></span>
+
+                            <input class="opttext" [formControlName]="oi" type="text" placeholder="Answer option"
+                                (click)="$event.stopPropagation()" />
+
+                            <button type="button" class="btn subtle tiny"
+                                (click)="$event.stopPropagation(); removeOption(i, oi)">
+                                Remove
+                            </button>
+                        </label>
+                    </div>
+                    <button type="button" class="btn ghost" (click)="addOption(i)">+ Add option</button>
+                </ng-container>
+
+                <!-- True / False -->
+                <ng-container *ngIf="q.controls.type.value === 'trueFalse'">
+                    <div class="options compact">
+                        <label class="option tf">
+                            <input class="radio" type="radio" formControlName="answer" [value]="true" />
+                            <span class="control"><span class="dot"></span></span>
+                            <span class="labeltext">True</span>
+                        </label>
+
+                        <label class="option tf">
+                            <input class="radio" type="radio" formControlName="answer" [value]="false" />
+                            <span class="control"><span class="dot"></span></span>
+                            <span class="labeltext">False</span>
+                        </label>
+                    </div>
+                </ng-container>
+
+                <!-- Fill in the blank -->
+                <ng-container *ngIf="q.controls.type.value === 'fillBlank'">
+                    <label class="label">Accepted answer</label>
+                    <input type="text" formControlName="acceptableAnswer" placeholder="Exact expected answer" />
+                </ng-container>
+
+                <!-- Matching -->
+                <ng-container *ngIf="q.controls.type.value === 'matching'">
+                    <div class="pairs" formArrayName="pairs">
+                        <div class="pairrow" *ngFor="let _pair of pairsControls(i); let pi = index"
+                            [formGroupName]="pi">
+                            <input formControlName="left" type="text" placeholder="Left side" />
+                            <span class="sep">⟷</span>
+                            <input formControlName="right" type="text" placeholder="Right side" />
+                            <button type="button" class="btn subtle tiny" (click)="removePair(i, pi)">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn ghost" (click)="addPair(i)">+ Add pair</button>
+                </ng-container>
+
+                <!-- Open-ended -->
+                <ng-container *ngIf="q.controls.type.value === 'openEnded'">
+                    <label class="label">Expected keywords (used for auto-grading)</label>
+                    <div class="keywords" formArrayName="expectedKeywords">
+                        <div class="keywordrow" *ngFor="let _kw of keywordControls(i); let ki = index">
+                            <input [formControlName]="ki" type="text" placeholder="Keyword" />
+                            <button type="button" class="btn subtle tiny" (click)="removeKeyword(i, ki)">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn ghost" (click)="addKeyword(i)">+ Add keyword</button>
+                </ng-container>
+            </div>
+
+            <div class="err" *ngIf="q.touched && q.invalid">This question is incomplete or invalid.</div>
+        </div>
+    </ng-container>
+
+    <!-- Sticky action bar -->
+    <div class="actionbar">
+        <div class="actionbar__inner">
+            <div class="count">
+                {{ questions.length }} question{{ questions.length === 1 ? '' : 's' }}
+            </div>
+
+            <div class="actions">
+                <button type="button" class="btn ghost back" (click)="goBack()">← Back</button>
+                <button class="btn" type="submit" [disabled]="posting()">
+                    {{ posting() ? 'Saving…' : 'Create quiz' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

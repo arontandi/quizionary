@@ -9,6 +9,8 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { getPerformance, providePerformance } from '@angular/fire/performance';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 import { environment } from '../environments/environment.development';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { authTokenInterceptor } from './core/interceptors/auth-token.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()), 
     provideFirestore(() => getFirestore()), 
     providePerformance(() => getPerformance()), 
-    provideStorage(() => getStorage())
+    provideStorage(() => getStorage()),
+    provideHttpClient(withFetch(), withInterceptors([authTokenInterceptor]))
   ]
 };

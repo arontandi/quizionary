@@ -3,5 +3,4 @@ export interface User {
     email: string;
     displayName?: string;
     createdAt: string;
-    quizzesCreated?: string[];
 }

@@ -1,0 +1,65 @@
+<form class="page" (ngSubmit)="generateAndCreate()">
+    <h1 class="title">Generate quiz</h1>
+    <p class="subtitle">Paste text or upload a PDF. The backend will parse, generate, and create the quiz automatically.
+    </p>
+
+    <!-- Source mode selector -->
+    <div class="addbar">
+        <button type="button" class="btn ghost" [class.active]="mode() === 'text'" (click)="setMode('text')"
+            [disabled]="loading()">From text</button>
+
+        <button type="button" class="btn ghost" [class.active]="mode() === 'pdf'" (click)="setMode('pdf')"
+            [disabled]="loading()">From PDF</button>
+    </div>
+
+    <!-- Text source -->
+    <div class="card" *ngIf="mode() === 'text'">
+        <div class="qhead">
+            <div class="num">T</div>
+            <div class="qtext">Paste source text</div>
+            <div class="right"></div>
+        </div>
+        <textarea rows="10" [ngModel]="sourceText()" (ngModelChange)="sourceText.set($event)" name="sourceText"
+            [disabled]="loading()" placeholder="Paste the learning material here… (min. ~20 characters)">
+        </textarea>
+        <p class="hint">Tip: 1-6 pages of content works best.</p>
+    </div>
+
+    <!-- PDF source -->
+    <div class="card" *ngIf="mode() === 'pdf'">
+        <div class="qhead">
+            <div class="num">P</div>
+            <div class="qtext">Upload PDF</div>
+            <div class="right"></div>
+        </div>
+
+        <label class="label">Choose a PDF</label>
+        <input type="file" accept="application/pdf" (change)="onPdfChosen(($any($event.target).files?.[0]) || null)"
+            [disabled]="loading()" />
+        <p class="hint" *ngIf="pdfName() as name">Selected: <b>{{ name }}</b></p>
+        <p class="hint">Scanned PDFs won’t work.</p>
+    </div>
+
+    <!-- Error -->
+    <div class="err" *ngIf="errorMsg()">{{ errorMsg() }}</div>
+
+    <!-- Sticky actions -->
+    <div class="actionbar">
+        <div class="actionbar__inner">
+            <div></div>
+            <div class="actions">
+                <button type="button" class="btn ghost back" (click)="goBack()" [disabled]="loading()">← Back</button>
+                <button type="submit" class="btn" [disabled]="loading() || !canGenerate()">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" *ngIf="loading()">
+        <div class="loading-box" role="alert" aria-live="assertive">
+            <svg class="spinner" viewBox="0 0 50 50" aria-hidden="true">
+                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
+            <div class="loading-text">Generating your quiz…</div>
+        </div>
+    </div>
+</form>
